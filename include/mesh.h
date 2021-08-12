@@ -16,23 +16,7 @@ protected:
 public: 
     Mesh()=delete;
 
-    Mesh(float* vertices, unsigned int* indices, std::size_t verticeSize, std::size_t indicesSize):
-        m_verticesSize{verticeSize}, m_indicesSize {indicesSize}
-    {
-        // Copying data 
-        m_vertices = new float [verticeSize];
-        for(int i = 0; i<verticeSize; ++i)
-        {
-            m_vertices[i] = vertices[i]; 
-        }
-        
-        m_indices = new unsigned int [indicesSize]; 
-        for(int i =0; i<indicesSize; ++i)
-        {
-            m_indices[i] = indices[i];
-        }
-
-    }
+    Mesh(float* vertices, unsigned int* indices, std::size_t verticeSize, std::size_t indicesSize);
     ~Mesh();
 
     // Diable copying
