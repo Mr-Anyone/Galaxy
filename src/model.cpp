@@ -36,7 +36,7 @@ void Model::processNode(aiNode *node, const aiScene*scene)
     for(unsigned int i=0; i<node->mNumMeshes; ++i)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; 
-        m_meshes.push_back(processMesh(mesh, scene)); // add move operator to change it into std::move (a)
+        m_meshes.push_back(std::move(processMesh(mesh, scene))); // add move operator to change it into std::move (a)
     }
 
     for(unsigned int i=0; i<node->mNumChildren; ++i)
@@ -45,10 +45,9 @@ void Model::processNode(aiNode *node, const aiScene*scene)
     }
 }
 
-static unsigned int TextureFromFile(const char* filename)
+static unsigned int TextureFromFile(const char* filename, const std::string& directory)
 {
-    std::string path {"./../res/model/backpack/"}; 
-    path += filename; 
+    std::string path = (directory + filename); 
 
     unsigned int textureID;
     glGenTextures(1, &textureID); 
@@ -86,7 +85,7 @@ static unsigned int TextureFromFile(const char* filename)
     return textureID;
 }
 
-static std::vector<Texture> loadMaterialTexture(aiMaterial *mat, aiTextureType type, const char* typeName)
+static std::vector<Texture> loadMaterialTexture(aiMaterial *mat, aiTextureType type, const char* typeName, const std::string& m_directory)
 {
     std::vector<Texture> textures;
     static std::vector<Texture> loadedTextures; 
@@ -110,7 +109,7 @@ static std::vector<Texture> loadMaterialTexture(aiMaterial *mat, aiTextureType t
         if(!skip)
         {
             Texture texture;
-            texture.id = TextureFromFile(str->C_Str());
+            texture.id = TextureFromFile(str->C_Str(), m_directory);
             texture.type = typeName;
             texture.path = str->C_Str();
             textures.push_back(texture);    
@@ -121,15 +120,13 @@ static std::vector<Texture> loadMaterialTexture(aiMaterial *mat, aiTextureType t
     return textures;
 }
 
-ModelMesh&&  Model::processMesh(aiMesh* mesh, const aiScene* scene)
+ModelMesh  Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     const std::size_t verticesSize = mesh->mNumVertices * 8;
     const std::size_t indicesSize = mesh->mNumFaces * 3;
-    const std::size_t textureSize = 0;
 
     float* vertices {new float [verticesSize]}; // 8 as the stride
     unsigned int* indices {new unsigned int [indicesSize]}; // Each face has two indices
-    Texture* textures {new Texture [textureSize]};
     
     int count {0}; // Keep track of the count
     for(unsigned int i = 0; i<mesh->mNumVertices; ++i)
@@ -160,24 +157,25 @@ ModelMesh&&  Model::processMesh(aiMesh* mesh, const aiScene* scene)
     }
     count = 0;
 
-    for(unsigned int i = 0; i<mesh->mNumFaces; ++i)
+    for(unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
-        aiFace face = mesh->mFaces[i]; 
-        for(unsigned int j = 0; j<face.mNumIndices; ++j)
+        aiFace face = mesh->mFaces[i];
+        for(int j = 0; j < face.mNumIndices; j++)
         {
             indices[count] = face.mIndices[j];
             ++count;
         }
-    }
+    }  
+
     count = 0;
     
     if(mesh->mMaterialIndex >=0)
     {
         aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<Texture> diffuseMap  {loadMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse")};
+        std::vector<Texture> diffuseMap  {loadMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse", m_directory)};
         m_textures.insert(m_textures.end(), diffuseMap.begin(), diffuseMap.end());
 
-        std::vector<Texture> specularMap { loadMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular")};
+        std::vector<Texture> specularMap { loadMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular", m_directory)};
         m_textures.insert(m_textures.end(), specularMap.begin(), specularMap.end());
     }
     
@@ -187,7 +185,6 @@ ModelMesh&&  Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // free memory
     delete [] vertices; 
     delete [] indices; 
-    delete [] textures; 
     return std::move(modelMesh);
 }
 

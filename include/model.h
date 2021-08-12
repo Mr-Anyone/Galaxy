@@ -20,16 +20,14 @@ public:
     Model(const char* modelPath ) 
     {
         m_directory = modelPath;
-        std::cout << m_directory << std::endl;  
-    
+        m_directory = m_directory.substr(0, m_directory.find_last_of('/') + 1 );
         this->loadModel(modelPath);
     }
 
 
     void loadModel(const char* modelPath);
     void processNode(aiNode *node, const aiScene*scene); 
-    ModelMesh&& processMesh(aiMesh *mesh, const aiScene *scene);
-
+    ModelMesh processMesh(aiMesh *mesh, const aiScene *scene);
     void draw(const Shader& shader) const;
 }; 
 

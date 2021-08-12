@@ -68,6 +68,8 @@ Mesh::Mesh(Mesh&& mesh)
 {
     m_vertices = mesh.m_vertices; 
     m_indices = mesh.m_indices;
+    m_verticesSize = mesh.m_verticesSize;
+    m_indicesSize = mesh.m_indicesSize;
     VAO = mesh.VAO; 
     VBO = mesh.VBO; 
     EBO = mesh.EBO;
@@ -95,7 +97,6 @@ Mesh::~Mesh()
 ModelMesh::ModelMesh(ModelMesh && mesh ):
     Mesh {std::move(mesh)}
 {
-
 }
 
 ModelMesh::~ModelMesh()
