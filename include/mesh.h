@@ -10,10 +10,12 @@ protected:
     float* m_vertices; 
     unsigned int* m_indices;
     std::size_t m_verticesSize; 
-    std::size_t m_indicesSize;
 
-    unsigned int VAO, VBO, EBO;    
 public: 
+    unsigned int VAO, VBO, EBO; 
+    std::size_t m_indicesSize;
+    
+
     Mesh()=delete;
 
     Mesh(float* vertices, unsigned int* indices, std::size_t verticeSize, std::size_t indicesSize);

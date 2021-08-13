@@ -5,6 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <vector>
+#include <glm/glm.hpp>
 
 #include "shader.h"
 #include "mesh.h"
@@ -29,6 +30,8 @@ public:
     void processNode(aiNode *node, const aiScene*scene); 
     ModelMesh processMesh(aiMesh *mesh, const aiScene *scene);
     void draw(const Shader& shader) const;
+    friend void makeLocations(glm::mat4* array, int size, Model& rock); // Think of a better way to access private
+    friend void drawRocks(const Shader& shader, const Model& model, const glm::mat4* positions);
 }; 
 
 #endif
